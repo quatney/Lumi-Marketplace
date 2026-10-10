@@ -55,3 +55,21 @@ Do not add placeholder Firebase IDs or credentials. No Firebase project ID, `goo
 - Confirmed this folder is not a Git repository.
 - Created the project backup listed above; generated build/cache directories were intentionally excluded.
 - No source code, existing UI, app configuration or dependencies were modified in this phase.
+
+
+## Supabase connection stage — 2026-10-10
+The initial architecture notes above describe the pre-backend inspection. For the current Supabase task, the existing route and storefront structure remains as described, and a minimal Supabase client bootstrap scaffold is now in place:
+
+- `pubspec.yaml` / `pubspec.lock` include the official `supabase_flutter` package (resolved as 2.18.2).
+- `lib/src/config/supabase_config.dart` reads `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` from Dart compile-time defines and considers the connection configured only if both are non-empty.
+- `lib/main.dart` initializes Flutter bindings and initializes Supabase before `runApp` only when both values are provided. With no project credentials, it preserves the existing storefront startup without attempting a network connection.
+- `supabase.env.example.json` documents the expected local configuration format. Copy it to the ignored `supabase.env.json`, replace both placeholders with values from the Supabase dashboard, and run the app with `flutter run --dart-define-from-file=supabase.env.json`. `supabase.env.json` is ignored by `.gitignore`.
+- Only the project URL and publishable/legacy anon key belong in the Flutter app. Never put the `service_role` key in this file or in the app.
+
+This is a connection scaffold, not a verified connection to your Supabase project: project-specific credentials were not supplied. Authentication, SQL schema/migrations, RLS, storage buckets/policies, marketplace queries, and payment/server integrations were not implemented. No existing UI widgets, styles, animations, or navigation were changed.
+
+### Dashboard actions needed to activate the connection
+1. Open your Supabase project and go to **Project Settings → API** (or **Connect**, depending on the dashboard version).
+2. Copy the **Project URL** and the **publishable key** (`sb_publishable_...`). If the dashboard exposes only the legacy anon key, that client-safe key can be used instead. Do not copy the `service_role`/secret key.
+3. In the project root, copy `supabase.env.example.json` to `supabase.env.json` and replace the two placeholder values. Do not paste credentials into chat or commit the local file.
+4. Launch from the project root with `flutter run --dart-define-from-file=supabase.env.json`.
